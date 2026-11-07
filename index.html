@@ -103,6 +103,9 @@
       background: var(--photo-bg);
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .photo-btn img {
       width: 100%;
@@ -120,6 +123,7 @@
       font-weight: 800;
       letter-spacing: 0.08em;
       box-shadow: 0 2px 0 rgba(29, 43, 79, 0.08);
+      touch-action: none;
     }
     .nav {
       display: flex;
@@ -170,9 +174,9 @@
       <span class="count" id="count"></span>
       <button class="text-btn" id="credit-btn" type="button">おとなのひと</button>
     </div>
-    <button class="photo-btn" id="photo-btn" type="button" aria-label="なまえをきく">
+    <div class="photo-btn" id="photo-btn" role="button" tabindex="0" aria-label="なまえをきく">
       <img id="photo" alt="">
-    </button>
+    </div>
     <button class="name-btn" id="name-btn" type="button"></button>
     <p class="form-label" id="form-label"></p>
     <div class="nav">
@@ -569,39 +573,73 @@
 
     let swipeStartX = 0;
     let swipeStartY = 0;
+    let swipeLastX = 0;
+    let swipeLastY = 0;
     let swipeActive = false;
+    let swipeLocked = false;
     let didSwipe = false;
-    const SWIPE_MIN = 56;
+    const SWIPE_MIN = 40;
 
     function swipeIgnoreTarget(target) {
       return !!(target && target.closest && target.closest("#credit-btn, #credits, #prev-btn, #next-btn"));
+    }
+
+    function finishSwipe(x, y) {
+      if (!swipeActive || didSwipe) {
+        swipeActive = false;
+        return;
+      }
+      swipeActive = false;
+      const dx = x - swipeStartX;
+      const dy = y - swipeStartY;
+      if (Math.abs(dx) >= SWIPE_MIN && Math.abs(dx) > Math.abs(dy)) {
+        didSwipe = true;
+        if (dx < 0) goNext();
+        else goPrev();
+      }
     }
 
     const viewerEl = document.getElementById("viewer");
     viewerEl.addEventListener("touchstart", (e) => {
       if (e.touches.length !== 1 || swipeIgnoreTarget(e.target)) {
         swipeActive = false;
+        swipeLocked = false;
         return;
       }
-      swipeStartX = e.touches[0].clientX;
-      swipeStartY = e.touches[0].clientY;
+      swipeStartX = swipeLastX = e.touches[0].clientX;
+      swipeStartY = swipeLastY = e.touches[0].clientY;
       swipeActive = true;
+      swipeLocked = false;
       didSwipe = false;
     }, { passive: true });
-    viewerEl.addEventListener("touchcancel", () => { swipeActive = false; });
-    viewerEl.addEventListener("touchend", (e) => {
-      if (!swipeActive || e.changedTouches.length !== 1) {
-        swipeActive = false;
-        return;
+    viewerEl.addEventListener("touchmove", (e) => {
+      if (!swipeActive || e.touches.length !== 1) return;
+      swipeLastX = e.touches[0].clientX;
+      swipeLastY = e.touches[0].clientY;
+      const dx = swipeLastX - swipeStartX;
+      const dy = swipeLastY - swipeStartY;
+      if (!swipeLocked) {
+        if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+        if (Math.abs(dx) <= Math.abs(dy)) {
+          swipeActive = false;
+          return;
+        }
+        swipeLocked = true;
       }
-      swipeActive = false;
-      const dx = e.changedTouches[0].clientX - swipeStartX;
-      const dy = e.changedTouches[0].clientY - swipeStartY;
-      if (Math.abs(dx) >= SWIPE_MIN && Math.abs(dx) > Math.abs(dy)) {
+      if (e.cancelable) e.preventDefault();
+      if (!didSwipe && Math.abs(dx) >= SWIPE_MIN) {
         didSwipe = true;
+        swipeActive = false;
         if (dx < 0) goNext();
         else goPrev();
       }
+    }, { passive: false });
+    viewerEl.addEventListener("touchend", (e) => {
+      const t = e.changedTouches[0];
+      finishSwipe(t ? t.clientX : swipeLastX, t ? t.clientY : swipeLastY);
+    });
+    viewerEl.addEventListener("touchcancel", () => {
+      finishSwipe(swipeLastX, swipeLastY);
     });
 
     function onSpeakClick() {
