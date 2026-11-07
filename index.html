@@ -76,6 +76,8 @@
       min-height: 100dvh;
       max-width: 640px;
       margin: 0 auto;
+      touch-action: pan-y;
+      overscroll-behavior-x: none;
     }
     .topbar {
       display: flex;
@@ -159,7 +161,7 @@
 <body>
   <main id="start" class="screen start">
     <h1>でんしゃずかん</h1>
-    <p>しゃしんをタッチすると、なまえをよみます。これはおやこでつかうおためしです。あとから、じぶんのしゃしんにもかえられます。</p>
+    <p>しゃしんをタッチすると、なまえをよみます。よこにすべらせると、つぎのでんしゃです。これはおやこでつかうおためしです。あとから、じぶんのしゃしんにもかえられます。</p>
     <button class="start-btn" id="start-btn" type="button">はじめる</button>
   </main>
 
@@ -555,22 +557,71 @@
       speak(TRAINS[index].spoken);
     }
 
+    function goPrev() {
+      stopSpeak();
+      if (index > 0) { index -= 1; render(); }
+    }
+
+    function goNext() {
+      stopSpeak();
+      if (index < TRAINS.length - 1) { index += 1; render(); }
+    }
+
+    let swipeStartX = 0;
+    let swipeStartY = 0;
+    let swipeActive = false;
+    let didSwipe = false;
+    const SWIPE_MIN = 56;
+
+    function swipeIgnoreTarget(target) {
+      return !!(target && target.closest && target.closest("#credit-btn, #credits, #prev-btn, #next-btn"));
+    }
+
+    const viewerEl = document.getElementById("viewer");
+    viewerEl.addEventListener("touchstart", (e) => {
+      if (e.touches.length !== 1 || swipeIgnoreTarget(e.target)) {
+        swipeActive = false;
+        return;
+      }
+      swipeStartX = e.touches[0].clientX;
+      swipeStartY = e.touches[0].clientY;
+      swipeActive = true;
+      didSwipe = false;
+    }, { passive: true });
+    viewerEl.addEventListener("touchcancel", () => { swipeActive = false; });
+    viewerEl.addEventListener("touchend", (e) => {
+      if (!swipeActive || e.changedTouches.length !== 1) {
+        swipeActive = false;
+        return;
+      }
+      swipeActive = false;
+      const dx = e.changedTouches[0].clientX - swipeStartX;
+      const dy = e.changedTouches[0].clientY - swipeStartY;
+      if (Math.abs(dx) >= SWIPE_MIN && Math.abs(dx) > Math.abs(dy)) {
+        didSwipe = true;
+        if (dx < 0) goNext();
+        else goPrev();
+      }
+    });
+
+    function onSpeakClick() {
+      if (didSwipe) {
+        didSwipe = false;
+        return;
+      }
+      sayCurrent();
+    }
+
     document.getElementById("start-btn").addEventListener("click", () => {
       loadVoices();
       document.getElementById("start").classList.add("hidden");
       document.getElementById("viewer").classList.remove("hidden");
       render();
     });
-    document.getElementById("photo-btn").addEventListener("click", sayCurrent);
-    document.getElementById("name-btn").addEventListener("click", sayCurrent);
-    document.getElementById("prev-btn").addEventListener("click", () => {
-      stopSpeak();
-      if (index > 0) { index -= 1; render(); }
-    });
-    document.getElementById("next-btn").addEventListener("click", () => {
-      stopSpeak();
-      if (index < TRAINS.length - 1) { index += 1; render(); }
-    });
+    document.getElementById("photo-btn").addEventListener("click", onSpeakClick);
+    document.getElementById("name-btn").addEventListener("click", onSpeakClick);
+    document.getElementById("prev-btn").addEventListener("click", goPrev);
+    document.getElementById("next-btn").addEventListener("click", goNext);
     document.getElementById("credit-btn").addEventListener("click", () => {
       document.getElementById("credits").classList.toggle("hidden");
     });
