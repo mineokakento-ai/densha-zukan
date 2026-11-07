@@ -69,6 +69,12 @@
       font-size: 1.7rem;
       font-weight: 700;
     }
+    .cat-prompt { font-size: 1.6rem; font-weight: 800; color: var(--ink); margin: 0; text-align: center; }
+    .cat-list { display: flex; flex-direction: column; gap: 16px; }
+    .cat-btn { min-height: 92px; color: #fff; font-size: 2rem; letter-spacing: 0.08em; }
+    .cat-shinkansen { background: #1f7ae0; }
+    .cat-local { background: #2e9e4f; }
+    .cat-steam { background: #3a3a3a; }
     .viewer {
       display: flex;
       flex-direction: column;
@@ -166,12 +172,18 @@
   <main id="start" class="screen start">
     <h1>でんしゃずかん</h1>
     <p>しゃしんをタッチすると、なまえをよみます。よこにすべらせると、つぎのでんしゃです。これはおやこでつかうおためしです。あとから、じぶんのしゃしんにもかえられます。</p>
-    <button class="start-btn" id="start-btn" type="button">はじめる</button>
+    <p class="cat-prompt">どれをみる？</p>
+    <div class="cat-list">
+      <button class="start-btn cat-btn cat-shinkansen" data-cat="shinkansen" data-say="しんかんせん" type="button">しんかんせん</button>
+      <button class="start-btn cat-btn cat-local" data-cat="local" data-say="ろーかる" type="button">ろーかる</button>
+      <button class="start-btn cat-btn cat-steam" data-cat="steam" data-say="きかんしゃ" type="button">きかんしゃ</button>
+    </div>
   </main>
 
   <section id="viewer" class="screen viewer hidden">
     <div class="topbar">
       <span class="count" id="count"></span>
+      <button class="text-btn" id="back-btn" type="button">ほかをみる</button>
       <button class="text-btn" id="credit-btn" type="button">おとなのひと</button>
     </div>
     <div class="photo-btn" id="photo-btn" role="button" tabindex="0" aria-label="なまえをきく">
@@ -189,6 +201,7 @@
   <script>
     const TRAINS = [
       {
+        category: "shinkansen",
         childName: "はやぶさ",
         spoken: "はやぶさ",
         form: "E5けい",
@@ -200,6 +213,7 @@
         note: "ファイル説明に、東京駅を発車するはやぶさとあります。表示用に縮小しています。"
       },
       {
+        category: "shinkansen",
         childName: "こまち",
         spoken: "こまち",
         form: "E6けい",
@@ -211,6 +225,7 @@
         note: "ファイル説明に、大宮駅に入る東京行き「こまち6号」（E6系Z14編成）とあります。表示用に縮小しています。"
       },
       {
+        category: "shinkansen",
         childName: "どくたーいえろー",
         spoken: "どくたーいえろー",
         form: "923けい",
@@ -222,6 +237,7 @@
         note: "ドクターイエロー（923形）の写真です。表示用に縮小しています。"
       },
       {
+        category: "shinkansen",
         childName: "ごひゃくけい",
         spoken: "ごひゃくけい",
         form: "500けい",
@@ -233,6 +249,7 @@
         note: "博多駅で撮影された500系です。表示用に縮小しています。"
       },
       {
+        category: "shinkansen",
         childName: "いーななけい",
         spoken: "いーななけい",
         form: "E7けい",
@@ -244,6 +261,7 @@
         note: "車両基地で試運転の合間に停車した写真と説明されています。かがやきとは表示しません。表示用に縮小しています。"
       },
       {
+        category: "shinkansen",
         childName: "えぬななひゃくえす",
         spoken: "えぬななひゃくえす",
         form: "N700Sけい",
@@ -255,6 +273,7 @@
         note: "ファイル説明に、東海道新幹線の浜松〜豊橋間を走るN700S（J2編成）とあります。列車名は書かれていないので、のぞみ等とは表示しません。表示用に縮小しています。"
       },
       {
+        category: "shinkansen",
         childName: "はっぴゃくけい",
         spoken: "はっぴゃくけい",
         form: "800けい",
@@ -266,6 +285,7 @@
         note: "ファイル説明に、九州新幹線の久留米駅に近づく800系（U007編成）とあります。ファイルは GFDL と CC BY 3.0 のデュアルライセンスで、CC BY 3.0 を選んで使っています。表示用に縮小しています。"
       },
       {
+        category: "shinkansen",
         childName: "いーさんけい",
         spoken: "いーさんけい",
         form: "E3けい",
@@ -277,6 +297,7 @@
         note: "ファイル説明に、大宮駅に入る東京行き「つばさ182号」（新塗装のE3系2000番台L53編成）とあります（ファイル名はE3-1000）。表示名は形式にしています。表示用に縮小しています。"
       },
       {
+        category: "shinkansen",
         childName: "りにあ",
         spoken: "りにあ",
         form: "L0けい",
@@ -288,6 +309,7 @@
         note: "ファイル説明に、山梨県の中央新幹線の試験線にいるL0系とあります。Flickrからの転載で、Commonsのライセンス確認済みの表示があります。表示用に縮小しています。"
       },
       {
+        category: "local",
         childName: "やまのてせん",
         spoken: "やまのてせん",
         form: "E235けい",
@@ -299,6 +321,7 @@
         note: "ファイル説明に、高輪ゲートウェイ駅へ入る山手線外回り（E235系0番台・第9編成）とあります。表示用に縮小しています。"
       },
       {
+        category: "local",
         childName: "ちゅうおうせん",
         spoken: "ちゅうおうせん",
         form: "E233けい",
@@ -310,6 +333,7 @@
         note: "ファイル説明に、中央快速線の荻窪〜西荻窪間を走るE233系0番台T40編成の八王子行き快速とあります。表示用に縮小しています。"
       },
       {
+        category: "local",
         childName: "おおえどせん",
         spoken: "おおえどせん",
         form: "12-600がた",
@@ -321,6 +345,7 @@
         note: "ファイル説明に、都営12-600形（3次車）の前面とあります。12-600形は都営大江戸線の車両です。表示用に縮小しています。"
       },
       {
+        category: "local",
         childName: "ろまんすかー",
         spoken: "ろまんすかー",
         form: "70000がた（GSE）",
@@ -332,6 +357,7 @@
         note: "ファイル説明に、祖師ヶ谷大蔵駅を通過する特急ロマンスカー「はこね15号」（70000形）とあります。表示用に縮小しています。"
       },
       {
+        category: "shinkansen",
         childName: "ななひゃくけい",
         spoken: "ななひゃくけい",
         form: "700けい",
@@ -343,6 +369,7 @@
         note: "ファイル説明に、東京駅の700系新幹線（B15編成）とあります。のぞみ・ひかりとは表示しません。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "shinkansen",
         childName: "いーはちけい",
         spoken: "いーはちけい",
         form: "E8けい",
@@ -354,6 +381,7 @@
         note: "ファイル説明に、白石蔵王駅で試運転中のE8系とあります。つばさとは表示しません。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "なりたえくすぷれす",
         spoken: "なりたえくすぷれす",
         form: "E259けい",
@@ -365,6 +393,7 @@
         note: "ファイル説明に、佐倉〜物井間を走るE259系NE014編成の成田エクスプレス40号とあります。専用塗色の車両で、表示名は成田エクスプレスにしています。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "すかいらいなー",
         spoken: "すかいらいなー",
         form: "AEがた",
@@ -376,6 +405,7 @@
         note: "ファイル説明に、松飛台駅へ入る京成AE形のスカイライナーとあります。専用車両で、表示名はスカイライナーにしています。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "けいきゅう",
         spoken: "けいきゅう",
         form: "2100がた",
@@ -387,6 +417,7 @@
         note: "ファイル説明に、大森海岸駅へ入る京急2100形の三崎口行き快特とあります。赤い京急の車両を「けいきゅう」と表示しています。説明の編成番号には誤記と思われる表記があるため、編成番号は表示しません。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "ゆりかもめ",
         spoken: "ゆりかもめ",
         form: "7300けい",
@@ -398,6 +429,7 @@
         note: "ファイル説明に、有明テニスの森駅へ入る新橋行きのゆりかもめ7300系（38番・7381編成）とあります。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "まるのうちせん",
         spoken: "まるのうちせん",
         form: "2000けい",
@@ -409,6 +441,7 @@
         note: "ファイル説明に、四ツ谷駅付近を走る丸ノ内線2000系2025編成の池袋行き列車とあります。赤い丸ノ内線の車両を「まるのうちせん」と表示しています。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "らびゅー",
         spoken: "らびゅー",
         form: "001けい",
@@ -420,6 +453,7 @@
         note: "ファイル説明に、芦ヶ久保〜横瀬間を走る西武001系「Laview」の特急ちちぶ15号とあります。専用車両のラビューを表示名にし、列車愛称の「ちちぶ」は説明だけにしています。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "ぎんざせん",
         spoken: "ぎんざせん",
         form: "1000けい",
@@ -431,6 +465,7 @@
         note: "ファイル説明に、渋谷〜表参道間を走る東京メトロ1000系1031編成とあります。黄色い銀座線の車両を「ぎんざせん」と表示しています。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "つくばえくすぷれす",
         spoken: "つくばえくすぷれす",
         form: "TX-3000けい",
@@ -442,6 +477,7 @@
         note: "ファイル説明に、柏たなか駅へ入る秋葉原行きの普通列車、TX-3000系とあります。ファイル名（3685）と説明（3185編成）の番号が違うため、編成番号は断定していません。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "すぺーしあえっくす",
         spoken: "すぺーしあえっくす",
         form: "N100けい",
@@ -453,6 +489,7 @@
         note: "ファイル説明に、東武日光線の板荷〜北鹿沼間を走るN100系「スペーシアX」とあります。専用車両の愛称スペーシアXを表示名にし、列車名は断定していません。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "ひのとり",
         spoken: "ひのとり",
         form: "80000けい",
@@ -464,6 +501,7 @@
         note: "ファイル説明に、近鉄大阪線の河合高岡駅へ入る80000系の名古屋行き特急「ひのとり10号」とあります。80000系は「ひのとり」専用車両なので表示名にしています。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "とでん",
         spoken: "とでん",
         form: "8800がた",
@@ -475,6 +513,7 @@
         note: "ファイル説明に、都電8800形8803とあります。都電荒川線（東京さくらトラム）の路面電車を「とでん」と表示しています。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "えのでん",
         spoken: "えのでん",
         form: "1000がた",
@@ -486,6 +525,7 @@
         note: "ファイル説明に、鎌倉駅に到着した江ノ電1000形とあります。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "いーさんごーさんけい",
         spoken: "いーさんごーさんけい",
         form: "E353けい",
@@ -497,6 +537,7 @@
         note: "ファイル説明に、中央本線の荻窪〜西荻窪間を走るE353系S116編成の特急列車とあります。外見だけで「あずさ」「かいじ」と断定しないよう、形式名を表示名にしています。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "local",
         childName: "かもつれっしゃ",
         spoken: "かもつれっしゃ",
         form: "EF210がた",
@@ -508,6 +549,7 @@
         note: "ファイル説明に、東海道本線の清洲駅を通過するJR貨物EF210形117号機とあります。貨物列車を引く電気機関車を「かもつれっしゃ」と表示しています。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "steam",
         childName: "でごいち",
         spoken: "でごいち",
         form: "D51がた",
@@ -519,6 +561,7 @@
         note: "ファイル説明に、水上駅前に保存されたD51形745号機とあります。「でごいち」はD51形の呼び名です。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "steam",
         childName: "しーろくじゅうに",
         spoken: "しーろくじゅうに",
         form: "C62がた",
@@ -530,6 +573,7 @@
         note: "ファイル説明に、京都鉄道博物館に保存されたC62形26号機とあります。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "steam",
         childName: "しーいちいち",
         spoken: "しーいちいち",
         form: "C11がた",
@@ -541,6 +585,7 @@
         note: "ファイル説明にC11形207号機が牽引する列車とあります。列車の愛称は表示していません。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "steam",
         childName: "しーごじゅうなな",
         spoken: "しーごじゅうなな",
         form: "C57がた",
@@ -552,6 +597,7 @@
         note: "ファイル説明に、会津若松で撮影したC57形180号機とあります。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "steam",
         childName: "しーごじゅうろく",
         spoken: "しーごじゅうろく",
         form: "C56がた",
@@ -563,6 +609,7 @@
         note: "ファイル説明に、京都鉄道博物館で運転中のC56形160号機とあります。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "steam",
         childName: "しーろくじゅういち",
         spoken: "しーろくじゅういち",
         form: "C61がた",
@@ -574,6 +621,7 @@
         note: "ファイル説明にC61形20号機が牽引する列車とあります。列車の愛称は表示していません。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "steam",
         childName: "はちろく",
         spoken: "はちろく",
         form: "8620がた",
@@ -585,6 +633,7 @@
         note: "ファイル名と説明から8620形58654号機の走行写真です。「はちろく」は8620形の呼び名です。列車の愛称は表示していません。表示用に縮小・JPEG再圧縮しています（トリミングなし）。"
       },
       {
+        category: "steam",
         childName: "きゅうろく",
         spoken: "きゅうろく",
         form: "9600がた",
@@ -598,6 +647,7 @@
     ];
 
     let index = 0;
+    let list = TRAINS;
     let voicesReady = false;
 
     function loadVoices() {
@@ -628,15 +678,15 @@
     }
 
     function render() {
-      const train = TRAINS[index];
-      document.getElementById("count").textContent = (index + 1) + " / " + TRAINS.length;
+      const train = list[index];
+      document.getElementById("count").textContent = (index + 1) + " / " + list.length;
       const img = document.getElementById("photo");
       img.src = train.image;
       img.alt = train.childName;
       document.getElementById("name-btn").textContent = train.childName;
       document.getElementById("form-label").textContent = train.form;
       document.getElementById("prev-btn").disabled = index === 0;
-      document.getElementById("next-btn").disabled = index === TRAINS.length - 1;
+      document.getElementById("next-btn").disabled = index === list.length - 1;
       document.getElementById("credits").innerHTML =
         "<h2>しゃしんの出典</h2>" +
         "<p>作者：" + train.credit + "</p>" +
@@ -646,7 +696,7 @@
     }
 
     function sayCurrent() {
-      speak(TRAINS[index].spoken);
+      speak(list[index].spoken);
     }
 
     function goPrev() {
@@ -656,7 +706,7 @@
 
     function goNext() {
       stopSpeak();
-      if (index < TRAINS.length - 1) { index += 1; render(); }
+      if (index < list.length - 1) { index += 1; render(); }
     }
 
     let swipeStartX = 0;
@@ -669,7 +719,7 @@
     const SWIPE_MIN = 40;
 
     function swipeIgnoreTarget(target) {
-      return !!(target && target.closest && target.closest("#credit-btn, #credits, #prev-btn, #next-btn"));
+      return !!(target && target.closest && target.closest("#back-btn, #credit-btn, #credits, #prev-btn, #next-btn"));
     }
 
     function finishSwipe(x, y) {
@@ -738,11 +788,27 @@
       sayCurrent();
     }
 
-    document.getElementById("start-btn").addEventListener("click", () => {
-      loadVoices();
-      document.getElementById("start").classList.add("hidden");
-      document.getElementById("viewer").classList.remove("hidden");
-      render();
+    document.querySelectorAll(".cat-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        loadVoices();
+        list = TRAINS.filter(t => t.category === btn.dataset.cat);
+        index = 0;
+        didSwipe = false;
+        swipeActive = false;
+        document.getElementById("credits").classList.add("hidden");
+        document.getElementById("start").classList.add("hidden");
+        document.getElementById("viewer").classList.remove("hidden");
+        render();
+        speak(btn.dataset.say);
+      });
+    });
+    document.getElementById("back-btn").addEventListener("click", () => {
+      stopSpeak();
+      swipeActive = false;
+      didSwipe = false;
+      document.getElementById("viewer").classList.add("hidden");
+      document.getElementById("start").classList.remove("hidden");
+      window.scrollTo(0, 0);
     });
     document.getElementById("photo-btn").addEventListener("click", onSpeakClick);
     document.getElementById("name-btn").addEventListener("click", onSpeakClick);
